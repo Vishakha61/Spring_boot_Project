@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Items List</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Available Items</h1>
+    <a href="/">← Back to Home</a>
+    <br><br>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${items.isEmpty()}">
+                <td colspan="5">No items available. Add some items via the API.</td>
+            </tr>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.id}">ID</td>
+                <td th:text="${item.name}">Name</td>
+                <td th:text="${item.category}">Category</td>
+                <td th:text="${item.price}">Price</td>
+                <td th:text="${item.quantity}">Quantity</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

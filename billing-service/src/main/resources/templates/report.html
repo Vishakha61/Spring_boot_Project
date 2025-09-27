@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sales Report by Category</title>
+</head>
+<body>
+    <h1>Sales Report by Category</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="entry : ${report}">
+                <td th:text="${entry.key}"></td>
+                <td th:text="${entry.value}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/">Back to Home</a>
+</body>
+</html>

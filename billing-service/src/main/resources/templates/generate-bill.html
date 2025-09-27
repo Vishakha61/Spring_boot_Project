@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Generate Bill</title>
+</head>
+<body>
+    <h1>Generate Bill</h1>
+    <form th:action="@{/generate-bill}" method="post">
+        <label>Item ID: <input type="number" name="itemId" required /></label><br>
+        <label>Quantity: <input type="number" name="quantity" required /></label><br>
+        <button type="submit">Generate Bill</button>
+    </form>
+    <div th:if="${success}">
+        <p style="color:green;" th:text="${success}"></p>
+        <p>Sale: <span th:text="${sale}"></span></p>
+    </div>
+    <div th:if="${error}">
+        <p style="color:red;" th:text="${error}"></p>
+    </div>
+    <a href="/">Back to Home</a>
+</body>
+</html>
