@@ -1,32 +1,255 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>All Sales</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle : 'All Sales'}">Sales</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #007bff;
+        }
+        
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        
+        .feature-card h5 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .table-responsive {
+            margin-top: 20px;
+        }
+        
+        .sales-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .export-buttons {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>All Sales</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Item Name</th>
-                <th>Category</th>
-                <th>Quantity Sold</th>
-                <th>Total Amount</th>
-                <th>Sale Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="sale : ${sales}">
-                <td th:text="${sale.id}"></td>
-                <td th:text="${sale.itemName}"></td>
-                <td th:text="${sale.category}"></td>
-                <td th:text="${sale.quantitySold}"></td>
-                <td th:text="${sale.totalAmount}"></td>
-                <td th:text="${sale.saleDate}"></td>
-            </tr>
-        </tbody>
-    </table>
-    <a href="/">Back to Home</a>
+    <div class="container">
+        <a href="/billing" class="btn btn-outline-primary mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Billing Dashboard
+        </a>
+        
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line me-2"></i><span th:text="${pageTitle != null ? pageTitle : 'All Sales'}">Sales</span></h1>
+            <p class="text-muted">Track and analyze your sales transactions</p>
+        </div>
+        
+        <!-- Search Form (shown when search=true) -->
+        <div th:if="${showSearchForm}" class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-search me-2"></i>Search Bills & Sales</h5>
+            </div>
+            <div class="card-body">
+                <form class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Search by Item Name:</label>
+                        <input type="text" class="form-control" name="itemName" placeholder="Enter item name">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Date From:</label>
+                        <input type="date" class="form-control" name="dateFrom">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Date To:</label>
+                        <input type="date" class="form-control" name="dateTo">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Export Options (shown when export=true) -->
+        <div th:if="${showExportOptions}" class="export-buttons">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-download me-2"></i>Export Sales Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100" onclick="exportToCSV()">
+                                <i class="fas fa-file-csv me-2"></i>Export as CSV
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-danger w-100" onclick="exportToPDF()">
+                                <i class="fas fa-file-pdf me-2"></i>Export as PDF
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel me-2"></i>Export as Excel
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100" onclick="printReport()">
+                                <i class="fas fa-print me-2"></i>Print Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sales Statistics -->
+        <div class="sales-stats">
+            <div class="stat-item">
+                <div class="stat-number" th:text="${#lists.size(sales)}">0</div>
+                <div>Total Transactions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">₹<span th:text="${#aggregates.sum(sales.![totalAmount])}">0.00</span></div>
+                <div>Total Revenue</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" th:text="${#aggregates.sum(sales.![quantitySold])}">0</div>
+                <div>Items Sold</div>
+            </div>
+        </div>
+        
+        <!-- Sales Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                        <th><i class="fas fa-box me-1"></i>Item Name</th>
+                        <th><i class="fas fa-tags me-1"></i>Category</th>
+                        <th><i class="fas fa-sort-numeric-up me-1"></i>Quantity</th>
+                        <th><i class="fas fa-rupee-sign me-1"></i>Amount</th>
+                        <th><i class="fas fa-calendar me-1"></i>Date</th>
+                        <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sale : ${sales}" th:if="${!#lists.isEmpty(sales)}">
+                        <td th:text="${sale.id}">1</td>
+                        <td>
+                            <strong th:text="${sale.itemName}">Item Name</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary" th:text="${sale.category}">Category</span>
+                        </td>
+                        <td th:text="${sale.quantitySold}">1</td>
+                        <td>
+                            <strong class="text-success">₹<span th:text="${sale.totalAmount}">0.00</span></strong>
+                        </td>
+                        <td th:text="${#temporals.format(sale.saleDate, 'dd-MM-yyyy HH:mm')}">Date</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" title="Print Receipt">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(sales)}">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            <h5>No sales transactions found</h5>
+                            <p>Start by <a href="/generate-bill">generating your first bill</a></p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <a href="/generate-bill" class="btn btn-success w-100">
+                    <i class="fas fa-plus me-2"></i>Generate New Bill
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="/report" class="btn btn-info w-100">
+                    <i class="fas fa-chart-bar me-2"></i>View Reports
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function exportToCSV() {
+            alert('CSV export functionality will be implemented soon!');
+        }
+        
+        function exportToPDF() {
+            alert('PDF export functionality will be implemented soon!');
+        }
+        
+        function exportToExcel() {
+            alert('Excel export functionality will be implemented soon!');
+        }
+        
+        function printReport() {
+            window.print();
+        }
+    </script>
 </body>
 </html>

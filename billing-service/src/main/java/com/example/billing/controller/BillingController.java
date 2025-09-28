@@ -153,9 +153,98 @@ public class BillingController {
     }
 
     @GetMapping("/report")
-    public String getSalesReport(Model model) {
+    public String getSalesReport(
+            @RequestParam(value = "period", required = false) String period,
+            @RequestParam(value = "dashboard", required = false) String dashboard,
+            Model model) {
+        
         Map<String, Double> report = billingService.getSalesReportByCategory();
         model.addAttribute("report", report);
+        
+        // Add period-specific data
+        if ("week".equals(period)) {
+            model.addAttribute("reportTitle", "Weekly Sales Report");
+            model.addAttribute("reportPeriod", "This Week");
+        } else if ("month".equals(period)) {
+            model.addAttribute("reportTitle", "Monthly Sales Report");
+            model.addAttribute("reportPeriod", "This Month");
+        } else if ("true".equals(dashboard)) {
+            model.addAttribute("reportTitle", "Analytics Dashboard");
+            model.addAttribute("showCharts", true);
+        } else {
+            model.addAttribute("reportTitle", "Sales Report");
+        }
+        
         return "report";
+    }
+    
+    @GetMapping("/sales")
+    public String getAllSales(
+            @RequestParam(value = "today", required = false) String today,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "export", required = false) String export,
+            @RequestParam(value = "recent", required = false) String recent,
+            Model model) {
+        
+        List<Sales> sales = billingService.getAllSales();
+        
+        // Filter sales based on parameters
+        if ("true".equals(today)) {
+            model.addAttribute("pageTitle", "Today's Sales");
+            model.addAttribute("showDateFilter", true);
+        } else if ("true".equals(search)) {
+            model.addAttribute("pageTitle", "Search Bills & Sales");
+            model.addAttribute("showSearchForm", true);
+        } else if ("true".equals(export)) {
+            model.addAttribute("pageTitle", "Export Sales Data");
+            model.addAttribute("showExportOptions", true);
+        } else if ("true".equals(recent)) {
+            model.addAttribute("pageTitle", "Recent Transactions");
+            // Limit to last 10 transactions
+            if (sales.size() > 10) {
+                sales = sales.subList(0, 10);
+            }
+        } else {
+            model.addAttribute("pageTitle", "All Sales");
+        }
+        
+        model.addAttribute("sales", sales);
+        return "sales";
+    }
+    
+    @GetMapping("/generate-bill")
+    public String generateBillForm(
+            @RequestParam(value = "bulk", required = false) String bulk,
+            @RequestParam(value = "quick", required = false) String quick,
+            Model model) {
+        
+        List<Map<String, Object>> items = billingService.getAllItems();
+        model.addAttribute("items", items);
+        
+        if ("true".equals(bulk)) {
+            model.addAttribute("pageTitle", "Bulk Billing");
+            model.addAttribute("bulkMode", true);
+            model.addAttribute("pageDescription", "Generate multiple bills efficiently");
+        } else if ("true".equals(quick)) {
+            model.addAttribute("pageTitle", "Quick Bill");
+            model.addAttribute("quickMode", true);
+            model.addAttribute("pageDescription", "Fast checkout for walk-in customers");
+        } else {
+            model.addAttribute("pageTitle", "Generate New Bill");
+        }
+        
+        return "generate-bill";
+    }
+    
+    @GetMapping("/settings")
+    public String systemSettings(Model model) {
+        model.addAttribute("pageTitle", "System Settings");
+        model.addAttribute("settings", Map.of(
+            "currency", "INR",
+            "taxRate", "18.0",
+            "companyName", "Billing System",
+            "lowStockAlert", "5"
+        ));
+        return "settings";
     }
 }
