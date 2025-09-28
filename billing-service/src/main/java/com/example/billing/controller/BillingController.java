@@ -21,6 +21,16 @@ public class BillingController {
         return "index"; // Thymeleaf template for menu
     }
 
+    @GetMapping("/inventory")
+    public String inventory() {
+        return "inventory-dashboard"; // Inventory section landing page
+    }
+
+    @GetMapping("/billing")
+    public String billing() {
+        return "billing-dashboard"; // Billing section landing page
+    }
+
     @GetMapping("/items")
     public String getItems(Model model) {
         List<Map<String, Object>> items = billingService.getAllItems();

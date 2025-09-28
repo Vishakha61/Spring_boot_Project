@@ -7,6 +7,18 @@ Refactor the single-module console app into a multi-module Maven project with tw
 
 Keep JPA/Hibernate, shared MySQL DB for simplicity. Use RestTemplate for inter-service communication.
 
+## Completed Features
+### ✅ User Authentication & Authorization
+- **Login System**: Secure user login with Spring Security
+- **Registration System**: User registration with validation
+- **Session Management**: Automatic session handling and logout
+- **Role-based Access**: Support for USER and ADMIN roles
+- **Default Users**: 
+  - Admin: username=`admin`, password=`admin123`
+  - User: username=`user`, password=`user123`
+- **Styled UI**: Professional login and registration pages
+- **Security Features**: BCrypt password encryption, CSRF protection
+
 ## Steps
 
 ### Phase 1: Project Structure Setup
@@ -27,7 +39,7 @@ Keep JPA/Hibernate, shared MySQL DB for simplicity. Use RestTemplate for inter-s
 
 ### Phase 4: Configuration and Cleanup
 - [x] **Step 11**: Create application.yml for each service (split from properties): DB config, server.port, inventory-service URL in billing.
-- [ ] **Step 12**: Remove old `InventoryBillingSystemApplication.java` and `ConsoleRunner.java`.
+- [x] **Step 12**: Add authentication system with login and registration pages.
 - [x] **Step 13**: Create missing repositories if needed (e.g., BillRepository extends JpaRepository<Bill, Integer>).
 
 ### Phase 5: Fix and Test "View Items" Functionality
@@ -40,3 +52,11 @@ Keep JPA/Hibernate, shared MySQL DB for simplicity. Use RestTemplate for inter-s
 - [ ] **Step 20**: Test: Access http://localhost:8080 (UI), verify API calls, DB updates, stock reduction on billing.
 
 Track progress by updating this file after each step.
+
+## Recent Additions
+- [x] **Authentication**: Complete login/register system implemented
+- [x] **User Management**: User entity, repository, and service created
+- [x] **Security Configuration**: Spring Security with proper URL protection
+- [x] **UI Enhancement**: Styled dashboard with user info and logout functionality
+- [x] **Database**: User table with role support (USER/ADMIN)
+- [x] **Session Handling**: Proper login/logout flow with redirects

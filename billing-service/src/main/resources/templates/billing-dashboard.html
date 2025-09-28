@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory &amp; Billing System</title>
+    <title>Billing System - Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,6 +27,20 @@
             color: white;
             margin: 0;
             font-size: 24px;
+        }
+        
+        .nav-breadcrumb {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        .nav-breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .nav-breadcrumb a:hover {
+            color: white;
         }
         
         .user-info {
@@ -65,31 +79,36 @@
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
         }
         
-        .dashboard h2 {
+        .section-header {
             text-align: center;
-            color: #333;
             margin-bottom: 30px;
+        }
+        
+        .section-header h2 {
+            color: #333;
+            margin: 0 0 10px 0;
             font-size: 28px;
+        }
+        
+        .section-header p {
+            color: #666;
+            margin: 0;
+            font-size: 16px;
         }
         
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .menu-grid {
-                grid-template-columns: 1fr;
-            }
+            margin-bottom: 30px;
         }
         
         .menu-item {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
             color: white;
             padding: 30px 20px;
             border-radius: 12px;
@@ -101,7 +120,7 @@
         
         .menu-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(253, 126, 20, 0.3);
             color: white;
             text-decoration: none;
         }
@@ -117,30 +136,44 @@
             opacity: 0.9;
         }
         
-        .welcome-message {
+        .back-to-dashboard {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            margin-top: 20px;
         }
         
-        .welcome-message h3 {
-            margin: 0 0 5px 0;
-            color: #333;
-        }
-        
-        .welcome-message p {
-            margin: 0;
-            color: #666;
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
             font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .primary-action {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+        
+        .primary-action:hover {
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3) !important;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Inventory &amp; Billing System</h1>
+        <div>
+            <h1>🧾 Billing System</h1>
+            <div class="nav-breadcrumb">
+                <a href="/">Dashboard</a> / Billing
+            </div>
+        </div>
         <div class="user-info">
             <span sec:authentication="name">Guest</span>
             <form th:action="@{/logout}" method="post" style="display: inline;">
@@ -151,39 +184,45 @@
     
     <div class="main-container">
         <div class="dashboard">
-            <div class="welcome-message">
-                <h3>Welcome back, <span sec:authentication="name">User</span>!</h3>
-                <p>What would you like to do today?</p>
+            <div class="section-header">
+                <h2>Billing System</h2>
+                <p>Generate bills, manage sales, and create detailed reports</p>
             </div>
-            
-            <h2>Main Dashboard</h2>
             
             <div class="menu-grid">
-                <a href="/inventory" class="menu-item">
-                    <h3>📦 Inventory Management</h3>
-                    <p>Manage stock levels, view items, and track inventory</p>
+                <a href="/generate-bill" class="menu-item primary-action">
+                    <h3>🧾 Generate New Bill</h3>
+                    <p>Create bills for customers and process sales</p>
                 </a>
                 
-                <a href="/billing" class="menu-item">
-                    <h3>🧾 Billing System</h3>
-                    <p>Generate bills, view sales, and create reports</p>
+                <a href="/sales" class="menu-item">
+                    <h3>💰 View All Sales</h3>
+                    <p>Browse through all sales transactions</p>
                 </a>
                 
-                <a href="/products" class="menu-item">
-                    <h3>🏷️ Products Management</h3>
-                    <p>Add, edit, and manage your product catalog</p>
+                <a href="/report" class="menu-item">
+                    <h3>📊 Sales Reports</h3>
+                    <p>View detailed sales analytics and reports</p>
+                </a>
+                
+                <a href="/sales?today=true" class="menu-item">
+                    <h3>📅 Today's Sales</h3>
+                    <p>View sales made today</p>
+                </a>
+                
+                <a href="/report?period=week" class="menu-item">
+                    <h3>📈 Weekly Report</h3>
+                    <p>View this week's performance</p>
+                </a>
+                
+                <a href="/report?period=month" class="menu-item">
+                    <h3>📋 Monthly Report</h3>
+                    <p>View this month's analytics</p>
                 </a>
             </div>
             
-            <!-- Quick Access Section -->
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h3 style="text-align: center; color: #666; margin-bottom: 15px;">Quick Access</h3>
-                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                    <a href="/generate-bill" style="color: #667eea; text-decoration: none; font-size: 14px;">Generate Bill</a>
-                    <a href="/items" style="color: #667eea; text-decoration: none; font-size: 14px;">View Items</a>
-                    <a href="/sales" style="color: #667eea; text-decoration: none; font-size: 14px;">View Sales</a>
-                    <a href="/report" style="color: #667eea; text-decoration: none; font-size: 14px;">Sales Report</a>
-                </div>
+            <div class="back-to-dashboard">
+                <a href="/" class="back-btn">← Back to Main Dashboard</a>
             </div>
         </div>
     </div>
