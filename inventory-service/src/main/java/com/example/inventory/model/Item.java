@@ -21,12 +21,36 @@ public class Item {
     // renamed to stock (your DB has 'stock' column)
     private int quantity;
 
-    // Explicit getter and setter for quantity to ensure they're available
+    // Explicit getters and setters to ensure they're available
     public int getQuantity() {
         return quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }

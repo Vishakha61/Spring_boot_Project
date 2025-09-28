@@ -44,4 +44,29 @@ public class ItemController {
         inventoryService.updateItem(item);
         return ResponseEntity.ok(item);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item updatedItem) {
+        try {
+            Item item = inventoryService.getItemById(id);
+            item.setName(updatedItem.getName());
+            item.setCategory(updatedItem.getCategory());
+            item.setPrice(updatedItem.getPrice());
+            item.setQuantity(updatedItem.getQuantity());
+            Item savedItem = inventoryService.updateItem(item);
+            return ResponseEntity.ok(savedItem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+        try {
+            inventoryService.deleteItem(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

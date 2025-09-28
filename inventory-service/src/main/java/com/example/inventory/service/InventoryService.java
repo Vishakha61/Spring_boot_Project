@@ -28,7 +28,14 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Item not found"));
     }
 
-    public void updateItem(Item item) {
-        itemRepository.save(item);
+    public Item updateItem(Item item) {
+        return itemRepository.save(item);
+    }
+
+    public void deleteItem(Long id) {
+        if (!itemRepository.existsById(id)) {
+            throw new RuntimeException("Item not found with id: " + id);
+        }
+        itemRepository.deleteById(id);
     }
 }

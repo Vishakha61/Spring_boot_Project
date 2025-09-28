@@ -1,12 +1,15 @@
 package com.example.billing.service;
 
+import com.example.billing.model.Product;
 import com.example.billing.model.Sales;
 import com.example.billing.repository.SalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,6 +19,9 @@ public class BillingService {
 
     @Autowired
     private SalesRepository salesRepository;
+
+    @Autowired
+    private ProductService productService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -92,11 +98,12 @@ public class BillingService {
 
     public List<Map<String, Object>> getAllItems() {
         try {
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> items = restTemplate.getForObject(inventoryServiceUrl, List.class);
-            return items != null ? items : getSampleItems();
+            List<Product> products = productService.getAllActiveProducts();
+            return products.stream()
+                .map(this::convertProductToMap)
+                .collect(Collectors.toList());
         } catch (Exception e) {
-            // Fallback: return sample data when inventory-service is not available
+            // Fallback: return sample data when database is not available
             return getSampleItems();
         }
     }
@@ -147,5 +154,64 @@ public class BillingService {
                 .filter(item -> ((Number) item.get("id")).longValue() == itemId)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private Map<String, Object> convertProductToMap(Product product) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", product.getId());
+        map.put("name", product.getName());
+        map.put("category", product.getCategory());
+        map.put("price", product.getPrice().doubleValue());
+        map.put("quantity", product.getStockQuantity());
+        return map;
+    }
+
+    public Map<String, Object> getItemById(Long itemId) {
+        try {
+            Product product = productService.getProductById(itemId)
+                .orElse(null);
+            return product != null ? convertProductToMap(product) : getSampleItemById(itemId);
+        } catch (Exception e) {
+            return getSampleItemById(itemId);
+        }
+    }
+
+    public void addItem(String name, String category, double price, int quantity) {
+        try {
+            Product product = new Product();
+            product.setName(name);
+            product.setCategory(category);
+            product.setPrice(BigDecimal.valueOf(price));
+            product.setStockQuantity(quantity);
+            product.setDescription("Added via item management");
+            productService.saveProduct(product);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add item: " + e.getMessage());
+        }
+    }
+
+    public void updateItem(Long id, String name, String category, double price, int quantity) {
+        try {
+            Product product = productService.getProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+            product.setName(name);
+            product.setCategory(category);
+            product.setPrice(BigDecimal.valueOf(price));
+            product.setStockQuantity(quantity);
+            productService.saveProduct(product);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update item: " + e.getMessage());
+        }
+    }
+
+    public void deleteItem(Long id) {
+        try {
+            // Check if product exists before deleting
+            productService.getProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+            productService.deleteProduct(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete item: " + e.getMessage());
+        }
     }
 }
