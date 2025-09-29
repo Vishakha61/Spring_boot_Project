@@ -114,75 +114,23 @@ public class ProductController {
 
     // Delete product (soft delete)
     @PostMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id, 
+    public String deleteProduct(@PathVariable Long id,
                               RedirectAttributes redirectAttributes) {
         try {
             Optional<Product> productOpt = productService.getProductById(id);
             if (productOpt.isPresent()) {
                 String productName = productOpt.get().getName();
                 productService.deleteProduct(id);
-                redirectAttributes.addFlashAttribute("successMessage", 
+                redirectAttributes.addFlashAttribute("successMessage",
                     "Product '" + productName + "' deleted successfully!");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", 
+                redirectAttributes.addFlashAttribute("errorMessage",
                     "Product not found with id: " + id);
             }
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/products";
-    }
-
-    // Stock management page
-    @GetMapping("/stock")
-    public String stockManagement(Model model) {
-        model.addAttribute("products", productService.getAllActiveProducts());
-        model.addAttribute("lowStockProducts", productService.getLowStockProducts(5));
-        return "stock-management";
-    }
-
-    // Update stock
-    @PostMapping("/stock/update/{id}")
-    public String updateStock(@PathVariable Long id, 
-                            @RequestParam Integer newQuantity,
-                            RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Product> productOpt = productService.getProductById(id);
-            if (productOpt.isPresent()) {
-                String productName = productOpt.get().getName();
-                productService.updateStock(id, newQuantity);
-                redirectAttributes.addFlashAttribute("successMessage", 
-                    "Stock updated for '" + productName + "' to " + newQuantity + " units!");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Product not found with id: " + id);
-            }
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        }
-        return "redirect:/products/stock";
-    }
-
-    // Add stock
-    @PostMapping("/stock/add/{id}")
-    public String addStock(@PathVariable Long id, 
-                         @RequestParam Integer quantity,
-                         RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Product> productOpt = productService.getProductById(id);
-            if (productOpt.isPresent()) {
-                String productName = productOpt.get().getName();
-                productService.addStock(id, quantity);
-                redirectAttributes.addFlashAttribute("successMessage", 
-                    "Added " + quantity + " units to '" + productName + "'!");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Product not found with id: " + id);
-            }
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        }
-        return "redirect:/products/stock";
     }
 
     // Initialize sample products (for testing)
@@ -224,11 +172,5 @@ public class ProductController {
     @ResponseBody
     public List<Product> getProductsByCategoryAPI(@PathVariable String category) {
         return productService.getProductsByCategory(category);
-    }
-
-    @GetMapping("/api/low-stock")
-    @ResponseBody
-    public List<Product> getLowStockProductsAPI(@RequestParam(defaultValue = "5") Integer threshold) {
-        return productService.getLowStockProducts(threshold);
     }
 }

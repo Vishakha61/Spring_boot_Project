@@ -30,7 +30,7 @@ I have successfully added comprehensive **Add, Update, and Delete** functionalit
 - **GET** `/edit-item/{id}` - Show edit item form
 - **POST** `/edit-item/{id}` - Process edit item form
 - **POST** `/delete-item/{id}` - Delete item with confirmation
-- **GET** `/stock-management` - Stock monitoring dashboard
+
 
 ## 🎨 Frontend Changes
 
@@ -78,14 +78,7 @@ I have successfully added comprehensive **Add, Update, and Delete** functionalit
 - Stock quantity display
 - Empty state handling
 
-### Stock Management Dashboard
-- Monitor stock levels across all items
-- Color-coded stock indicators:
-  - 🟢 Good Stock (>5 items)
-  - 🟡 Low Stock (1-5 items) 
-  - 🔴 Out of Stock (0 items)
-- Stock statistics and total value calculation
-- Quick access to update stock levels
+
 
 ## 🛠️ Technical Implementation
 
@@ -113,7 +106,7 @@ I have successfully added comprehensive **Add, Update, and Delete** functionalit
 2. **Add Item**: Click "Add New Item" button or visit `/add-item`
 3. **Edit Item**: Click "Edit" button next to any item in the items list
 4. **Delete Item**: Click "Delete" button and confirm in the dialog
-5. **Stock Management**: Visit `/stock-management` for inventory monitoring
+
 
 ## 🎯 Navigation Paths
 - **Home** → Items Management → `/items`

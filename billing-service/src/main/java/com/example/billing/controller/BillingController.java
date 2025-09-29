@@ -93,41 +93,6 @@ public class BillingController {
         return "redirect:/items";
     }
 
-    @GetMapping("/stock-management")
-    public String stockManagement(Model model) {
-        List<Map<String, Object>> items = billingService.getAllItems();
-        
-        // Calculate stock statistics
-        int totalItems = items.size();
-        int lowStockCount = 0;
-        int outOfStockCount = 0;
-        int goodStockCount = 0;
-        double totalValue = 0.0;
-        
-        for (Map<String, Object> item : items) {
-            int quantity = ((Number) item.get("quantity")).intValue();
-            double price = ((Number) item.get("price")).doubleValue();
-            totalValue += quantity * price;
-            
-            if (quantity == 0) {
-                outOfStockCount++;
-            } else if (quantity <= 5) {
-                lowStockCount++;
-            } else {
-                goodStockCount++;
-            }
-        }
-        
-        model.addAttribute("items", items);
-        model.addAttribute("totalItems", totalItems);
-        model.addAttribute("lowStockCount", lowStockCount);
-        model.addAttribute("outOfStockCount", outOfStockCount);
-        model.addAttribute("goodStockCount", goodStockCount);
-        model.addAttribute("totalValue", totalValue);
-        
-        return "stock-management";
-    }
-
     @GetMapping("/generate-bill")
     public String generateBillForm(
             @RequestParam(value = "bulk", required = false) String bulk,

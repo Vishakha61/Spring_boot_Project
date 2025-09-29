@@ -38,7 +38,6 @@ Once both services are running, open your web browser and navigate to:
 | **Items Management** | `http://localhost:8080/items` | View, edit, delete items |
 | **Add New Item** | `http://localhost:8080/add-item` | Add new inventory items |
 | **Edit Item** | `http://localhost:8080/edit-item/{id}` | Edit specific item |
-| **Stock Management** | `http://localhost:8080/stock-management` | Monitor inventory levels |
 | **Inventory Dashboard** | `http://localhost:8080/inventory` | Inventory section overview |
 | **Billing Dashboard** | `http://localhost:8080/billing` | Billing section overview |
 | **Generate Bill** | `http://localhost:8080/generate-bill` | Create sales transactions |
