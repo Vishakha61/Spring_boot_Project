@@ -39,6 +39,14 @@ public class Sales {
         this.totalAmount = totalAmount;
     }
 
+    public int getQuantitySold() {
+        return quantitySold;
+    }
+
+    public void setQuantitySold(int quantitySold) {
+        this.quantitySold = quantitySold;
+    }
+
     // Builder method
     public static SalesBuilder builder() {
         return new SalesBuilder();

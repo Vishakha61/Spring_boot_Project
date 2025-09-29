@@ -1,11 +1,11 @@
 package com.example.billing.service;
 
+import com.example.billing.feign.InventoryServiceClient;
 import com.example.billing.model.Product;
 import com.example.billing.model.Sales;
 import com.example.billing.repository.SalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,16 +24,12 @@ public class BillingService {
     private ProductService productService;
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    private final String inventoryServiceUrl = "http://localhost:8081/api/items";
+    private InventoryServiceClient inventoryServiceClient;
 
     public Sales generateBill(Long itemId, int quantity) {
         try {
-            // Get item from inventory-service
-            String url = inventoryServiceUrl + "/" + itemId;
-            @SuppressWarnings("unchecked")
-            Map<String, Object> item = restTemplate.getForObject(url, Map.class);
+            // Get item from inventory-service using Feign client
+            Map<String, Object> item = inventoryServiceClient.getItemById(itemId);
             
             if (item == null) {
                 throw new RuntimeException("Item not found");
@@ -50,9 +46,8 @@ public class BillingService {
             double price = ((Number) item.get("price")).doubleValue();
             double totalAmount = price * quantity;
 
-            // Reduce stock via API
-            String updateUrl = inventoryServiceUrl + "/" + itemId + "/stock?quantity=" + quantity;
-            restTemplate.put(updateUrl, null);
+            // Reduce stock via Feign client
+            inventoryServiceClient.updateStock(itemId, quantity);
 
             Sales sale = Sales.builder()
                     .itemName((String) item.get("name"))
@@ -98,12 +93,10 @@ public class BillingService {
 
     public List<Map<String, Object>> getAllItems() {
         try {
-            List<Product> products = productService.getAllActiveProducts();
-            return products.stream()
-                .map(this::convertProductToMap)
-                .collect(Collectors.toList());
+            // Use Feign client instead of RestTemplate
+            return inventoryServiceClient.getAllItems();
         } catch (Exception e) {
-            // Fallback: return sample data when database is not available
+            // Fallback: return sample data when service is not available
             return getSampleItems();
         }
     }
@@ -168,50 +161,85 @@ public class BillingService {
 
     public Map<String, Object> getItemById(Long itemId) {
         try {
-            Product product = productService.getProductById(itemId)
-                .orElse(null);
-            return product != null ? convertProductToMap(product) : getSampleItemById(itemId);
+            // Try Feign client first
+            return inventoryServiceClient.getItemById(itemId);
         } catch (Exception e) {
-            return getSampleItemById(itemId);
+            // Fallback to local product service
+            try {
+                Product product = productService.getProductById(itemId)
+                    .orElse(null);
+                return product != null ? convertProductToMap(product) : getSampleItemById(itemId);
+            } catch (Exception ex) {
+                return getSampleItemById(itemId);
+            }
         }
     }
 
     public void addItem(String name, String category, double price, int quantity) {
+        Map<String, Object> item = Map.of(
+            "name", name,
+            "category", category,
+            "price", price,
+            "quantity", quantity
+        );
+        
         try {
-            Product product = new Product();
-            product.setName(name);
-            product.setCategory(category);
-            product.setPrice(BigDecimal.valueOf(price));
-            product.setStockQuantity(quantity);
-            product.setDescription("Added via item management");
-            productService.saveProduct(product);
+            inventoryServiceClient.addItem(item);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to add item: " + e.getMessage());
+            // Fallback: add to local product service
+            try {
+                Product product = new Product();
+                product.setName(name);
+                product.setCategory(category);
+                product.setPrice(BigDecimal.valueOf(price));
+                product.setStockQuantity(quantity);
+                product.setDescription("Added via item management");
+                productService.saveProduct(product);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to add item: " + ex.getMessage());
+            }
         }
     }
 
     public void updateItem(Long id, String name, String category, double price, int quantity) {
+        Map<String, Object> item = Map.of(
+            "name", name,
+            "category", category,
+            "price", price,
+            "quantity", quantity
+        );
+        
         try {
-            Product product = productService.getProductById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-            product.setName(name);
-            product.setCategory(category);
-            product.setPrice(BigDecimal.valueOf(price));
-            product.setStockQuantity(quantity);
-            productService.saveProduct(product);
+            inventoryServiceClient.updateItem(id, item);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update item: " + e.getMessage());
+            // Fallback: update local product service
+            try {
+                Product product = productService.getProductById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                product.setName(name);
+                product.setCategory(category);
+                product.setPrice(BigDecimal.valueOf(price));
+                product.setStockQuantity(quantity);
+                productService.saveProduct(product);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to update item: " + ex.getMessage());
+            }
         }
     }
 
     public void deleteItem(Long id) {
         try {
-            // Check if product exists before deleting
-            productService.getProductById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-            productService.deleteProduct(id);
+            inventoryServiceClient.deleteItem(id);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete item: " + e.getMessage());
+            // Fallback: delete from local product service
+            try {
+                // Check if product exists before deleting
+                productService.getProductById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                productService.deleteProduct(id);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to delete item: " + ex.getMessage());
+            }
         }
     }
 }
