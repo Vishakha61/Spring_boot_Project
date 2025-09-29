@@ -258,7 +258,7 @@
             top: 15px;
             right: 15px;
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-            color: #667eea;
+            color: white;
             padding: 5px 12px;
             border-radius: 15px;
             font-size: 0.75rem;
@@ -273,7 +273,7 @@
         }
         
         .primary-action .menu-icon {
-            -webkit-text-fill-color: white;
+            -webkit-text-fill-color: white !important;
         }
         
         .primary-action h3,
@@ -287,16 +287,62 @@
         
         .secondary-action {
             background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
-            color: white;
+            color: white !important;
         }
         
         .secondary-action .menu-icon {
-            -webkit-text-fill-color: white;
+            -webkit-text-fill-color: white !important;
         }
         
         .secondary-action h3,
         .secondary-action p {
-            color: white;
+            color: white !important;
+        }
+
+        .purple-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+        }
+
+        .purple-action .menu-icon {
+            -webkit-text-fill-color: white !important;
+        }
+
+        .purple-action h3,
+        .purple-action p {
+            color: white !important;
+        }
+
+        .purple-action .category-badge {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) 100%) !important;
+            color: white !important;
+        }
+
+        .purple-action:hover {
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        .blue-action {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+            color: white !important;
+        }
+
+        .blue-action .menu-icon {
+            -webkit-text-fill-color: white !important;
+        }
+
+        .blue-action h3,
+        .blue-action p {
+            color: white !important;
+        }
+
+        .blue-action .category-badge {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) 100%) !important;
+            color: white !important;
+        }
+
+        .blue-action:hover {
+            box-shadow: 0 20px 40px rgba(0, 123, 255, 0.3) !important;
         }
         
         .back-to-dashboard {
@@ -444,108 +490,35 @@
                     <p>Browse through all sales transactions and customer history</p>
                 </a>
                 
-                <!-- Product & Inventory Management -->
-                <a href="/products" class="menu-item">
-                    <div class="category-badge">Inventory</div>
-                    <div class="menu-icon"><i class="fas fa-tags"></i></div>
-                    <h3>Product Management</h3>
-                    <p>Add, update, delete products and manage inventory levels</p>
-                </a>
-                
-                <a href="/items" class="menu-item">
-                    <div class="category-badge">Inventory</div>
-                    <div class="menu-icon"><i class="fas fa-boxes"></i></div>
-                    <h3>Item Management</h3>
-                    <p>Manage items, add new stock, and update item information</p>
-                </a>
-                
-                <!-- Advanced Billing Features -->
-                <a href="/generate-bill?bulk=true" class="menu-item">
-                    <div class="category-badge">Advanced</div>
-                    <div class="menu-icon"><i class="fas fa-layer-group"></i></div>
-                    <h3>Bulk Billing</h3>
-                    <p>Generate multiple bills and batch processing for efficiency</p>
-                </a>
-                
-                <a href="/sales?search=true" class="menu-item">
-                    <div class="category-badge">Search</div>
-                    <div class="menu-icon"><i class="fas fa-search"></i></div>
-                    <h3>Search Bills & Sales</h3>
-                    <p>Find specific transactions, customers, and billing history</p>
-                </a>
-                
                 <!-- Reports & Analytics -->
-                <a href="/report" class="menu-item">
+                <a href="/report" class="menu-item purple-action">
                     <div class="category-badge">Reports</div>
                     <div class="menu-icon"><i class="fas fa-chart-bar"></i></div>
                     <h3>Sales Reports</h3>
-                    <p>View detailed sales analytics, trends, and performance reports</p>
-                </a>
-                
-                <a href="/sales?today=true" class="menu-item">
-                    <div class="category-badge">Daily</div>
-                    <div class="menu-icon"><i class="fas fa-calendar-day"></i></div>
-                    <h3>Today's Sales</h3>
-                    <p>View all sales and transactions made today</p>
-                </a>
-                
-                <a href="/report?period=week" class="menu-item">
-                    <div class="category-badge">Weekly</div>
-                    <div class="menu-icon"><i class="fas fa-calendar-week"></i></div>
-                    <h3>Weekly Report</h3>
-                    <p>View this week's performance and sales trends</p>
-                </a>
-                
-                <a href="/report?period=month" class="menu-item">
-                    <div class="category-badge">Monthly</div>
-                    <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <h3>Monthly Report</h3>
-                    <p>View comprehensive monthly analytics and insights</p>
+                    <p>View detailed sales analytics, trends, and performance reports for daily, weekly, and monthly periods</p>
                 </a>
                 
                 <!-- Customer & Data Management -->
-                <a href="/sales?export=true" class="menu-item">
+                <a href="/sales?export=true" class="menu-item blue-action">
                     <div class="category-badge">Export</div>
                     <div class="menu-icon"><i class="fas fa-download"></i></div>
                     <h3>Export Data</h3>
                     <p>Download sales data, reports as CSV, PDF, or Excel files</p>
                 </a>
                 
-                <a href="/stock-management" class="menu-item">
-                    <div class="category-badge">Stock</div>
-                    <div class="menu-icon"><i class="fas fa-warehouse"></i></div>
-                    <h3>Stock Management</h3>
-                    <p>Monitor inventory levels, stock alerts, and reorder points</p>
-                </a>
-                
                 <!-- Settings & Configuration -->
-                <a href="/settings" class="menu-item">
+                <a href="/settings" class="menu-item purple-action">
                     <div class="category-badge">Settings</div>
                     <div class="menu-icon"><i class="fas fa-cogs"></i></div>
                     <h3>System Settings</h3>
                     <p>Configure billing settings, preferences, and system options</p>
                 </a>
                 
-                <a href="/report?dashboard=true" class="menu-item">
+                <a href="/report?dashboard=true" class="menu-item blue-action">
                     <div class="category-badge">Analytics</div>
                     <div class="menu-icon"><i class="fas fa-tachometer-alt"></i></div>
                     <h3>Analytics Dashboard</h3>
                     <p>Interactive charts, graphs, and business insights</p>
-                </a>
-                
-                <!-- Quick Actions -->
-                <a href="/generate-bill?quick=true" class="menu-item">
-                    <div class="category-badge">Quick</div>
-                    <div class="menu-icon"><i class="fas fa-bolt"></i></div>
-                    <h3>Quick Bill</h3>
-                    <p>Fast checkout and billing for walk-in customers</p>
-                </a>
-                
-                <a href="/sales?recent=true" class="menu-item">
-                    <div class="category-badge">Recent</div>
-                    <div class="menu-icon"><i class="fas fa-clock"></i></div>
-                    <h3>Recent Transactions</h3>
-                    <p>View last 10 transactions and recent customer activity</p>
                 </a>
             </div>
             
