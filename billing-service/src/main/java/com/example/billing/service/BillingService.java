@@ -30,33 +30,28 @@ public class BillingService {
 
     public Sales generateBill(Long itemId, int quantity) {
         try {
-            // Get item from inventory-service
-            String url = inventoryServiceUrl + "/" + itemId;
-            @SuppressWarnings("unchecked")
-            Map<String, Object> item = restTemplate.getForObject(url, Map.class);
-            
-            if (item == null) {
-                throw new RuntimeException("Item not found");
-            }
+            // Get product from local database
+            Product product = productService.getProductById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
 
-            int stock = (int) item.get("quantity");
+            int stock = product.getStockQuantity();
             if (stock <= 0) {
                 throw new RuntimeException("Item is out of stock!");
             }
             if (stock < quantity) {
-                throw new RuntimeException("Not enough stock available!");
+                throw new RuntimeException("Not enough stock available! Available: " + stock);
             }
 
-            double price = ((Number) item.get("price")).doubleValue();
+            double price = product.getPrice().doubleValue();
             double totalAmount = price * quantity;
 
-            // Reduce stock via API
-            String updateUrl = inventoryServiceUrl + "/" + itemId + "/stock?quantity=" + quantity;
-            restTemplate.put(updateUrl, null);
+            // Reduce stock locally
+            product.setStockQuantity(stock - quantity);
+            productService.saveProduct(product);
 
             Sales sale = Sales.builder()
-                    .itemName((String) item.get("name"))
-                    .category((String) item.get("category"))
+                    .itemName(product.getName())
+                    .category(product.getCategory())
                     .quantitySold(quantity)
                     .totalAmount(totalAmount)
                     .saleDate(LocalDateTime.now())
@@ -65,24 +60,7 @@ public class BillingService {
             return salesRepository.save(sale);
             
         } catch (Exception e) {
-            // Fallback: use sample data when inventory-service is not available
-            Map<String, Object> item = getSampleItemById(itemId);
-            if (item == null) {
-                throw new RuntimeException("Item not found");
-            }
-
-            double price = ((Number) item.get("price")).doubleValue();
-            double totalAmount = price * quantity;
-
-            Sales sale = Sales.builder()
-                    .itemName((String) item.get("name"))
-                    .category((String) item.get("category"))
-                    .quantitySold(quantity)
-                    .totalAmount(totalAmount)
-                    .saleDate(LocalDateTime.now())
-                    .build();
-
-            return salesRepository.save(sale);
+            throw new RuntimeException("Failed to generate bill: " + e.getMessage());
         }
     }
 
