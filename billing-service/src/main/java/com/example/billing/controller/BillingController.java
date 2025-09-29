@@ -129,7 +129,28 @@ public class BillingController {
     }
 
     @GetMapping("/generate-bill")
-    public String generateBillForm() {
+    public String generateBillForm(
+            @RequestParam(value = "bulk", required = false) String bulk,
+            @RequestParam(value = "quick", required = false) String quick,
+            Model model) {
+        
+        List<Map<String, Object>> items = billingService.getAllItems();
+        model.addAttribute("items", items);
+        
+        // Set page attributes based on parameters
+        if ("true".equals(bulk)) {
+            model.addAttribute("pageTitle", "Bulk Billing");
+            model.addAttribute("pageDescription", "Generate multiple bills in batch processing mode");
+            model.addAttribute("bulkMode", true);
+        } else if ("true".equals(quick)) {
+            model.addAttribute("pageTitle", "Quick Bill");
+            model.addAttribute("pageDescription", "Fast checkout for walk-in customers");
+            model.addAttribute("quickMode", true);
+        } else {
+            model.addAttribute("pageTitle", "Generate New Bill");
+            model.addAttribute("pageDescription", "Create professional bills for customers");
+        }
+        
         return "generate-bill";
     }
 
@@ -143,13 +164,6 @@ public class BillingController {
             model.addAttribute("error", e.getMessage());
         }
         return "generate-bill";
-    }
-
-    @GetMapping("/sales")
-    public String getAllSales(Model model) {
-        List<Sales> sales = billingService.getAllSales();
-        model.addAttribute("sales", sales);
-        return "sales";
     }
 
     @GetMapping("/report")
@@ -208,32 +222,15 @@ public class BillingController {
             model.addAttribute("pageTitle", "All Sales");
         }
         
+        // Calculate statistics
+        double totalRevenue = sales.stream().mapToDouble(Sales::getTotalAmount).sum();
+        int totalItemsSold = sales.stream().mapToInt(Sales::getQuantitySold).sum();
+        
         model.addAttribute("sales", sales);
+        model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("totalItemsSold", totalItemsSold);
+        
         return "sales";
-    }
-    
-    @GetMapping("/generate-bill")
-    public String generateBillForm(
-            @RequestParam(value = "bulk", required = false) String bulk,
-            @RequestParam(value = "quick", required = false) String quick,
-            Model model) {
-        
-        List<Map<String, Object>> items = billingService.getAllItems();
-        model.addAttribute("items", items);
-        
-        if ("true".equals(bulk)) {
-            model.addAttribute("pageTitle", "Bulk Billing");
-            model.addAttribute("bulkMode", true);
-            model.addAttribute("pageDescription", "Generate multiple bills efficiently");
-        } else if ("true".equals(quick)) {
-            model.addAttribute("pageTitle", "Quick Bill");
-            model.addAttribute("quickMode", true);
-            model.addAttribute("pageDescription", "Fast checkout for walk-in customers");
-        } else {
-            model.addAttribute("pageTitle", "Generate New Bill");
-        }
-        
-        return "generate-bill";
     }
     
     @GetMapping("/settings")

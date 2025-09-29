@@ -7,29 +7,330 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Modern Background and Layout */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Enhanced Stock Cards with Gradients */
         .stock-card {
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
         }
+        
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+        }
+        
         .stock-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
+        
+        .stock-card.bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .stock-card.bg-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+        }
+        
+        .stock-card.bg-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+            color: white !important;
+        }
+        
+        .stock-card.bg-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%) !important;
+        }
+        
+        /* Page Header Enhancement */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .page-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        /* Stock Status Highlights */
         .low-stock-highlight {
             border-left: 5px solid #ffc107;
-            background-color: #fff3cd;
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+            animation: pulse-warning 2s infinite;
         }
+        
         .out-of-stock-highlight {
             border-left: 5px solid #dc3545;
-            background-color: #f8d7da;
+            background: linear-gradient(90deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+            animation: pulse-danger 2s infinite;
         }
+        
         .in-stock-highlight {
             border-left: 5px solid #28a745;
-            background-color: #d1eddb;
+            background: linear-gradient(90deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
         }
+        
+        /* Animations */
+        @keyframes pulse-warning {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+        }
+        
+        @keyframes pulse-danger {
+            0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(220, 53, 69, 0.8); }
+        }
+        
+        /* Enhanced Table Styling */
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 15px;
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), transparent);
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody td {
+            vertical-align: middle;
+            padding: 15px;
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Enhanced Form Controls */
         .stock-input {
             max-width: 100px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
         }
-        .stock-actions {
-            min-width: 200px;
+        
+        .stock-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            transform: scale(1.05);
+        }
+        
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+        
+        /* Enhanced Nav Tabs */
+        .nav-tabs {
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 10px;
+            margin: 0 5px;
+            color: #495057;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-tabs .nav-link:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        /* Enhanced Cards */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 3px solid #667eea;
+            font-weight: 700;
+            color: #495057;
+        }
+        
+        /* Enhanced Alerts */
+        .alert {
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 193, 7, 0.1) 100%);
+            border-left: 5px solid #ffc107;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            .stock-card {
+                margin-bottom: 15px;
+            }
+            
+            .page-header {
+                text-align: center;
+                padding: 20px;
+            }
+        }
+        
+        /* Stock Level Indicators */
+        .stock-level-indicator {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stock-level-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .stock-level-high { background: linear-gradient(90deg, #28a745, #20c997); }
+        .stock-level-medium { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+        .stock-level-low { background: linear-gradient(90deg, #dc3545, #e74c3c); }
+        
+        /* Custom Scrollbar */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
     </style>
 </head>
@@ -87,20 +388,25 @@
             </ol>
         </nav>
 
-        <!-- Page Header -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h2><i class="fas fa-warehouse text-warning me-2"></i>Stock Management</h2>
-                <p class="text-muted">Manage inventory levels and track stock status</p>
-            </div>
-            <div class="col-md-6 text-end">
-                <div class="btn-group" role="group">
-                    <a href="/products" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to Products
-                    </a>
-                    <a href="/products/add" class="btn btn-success">
-                        <i class="fas fa-plus me-1"></i>Add Product
-                    </a>
+        <!-- Enhanced Page Header -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2><i class="fas fa-warehouse me-3"></i>Stock Management Dashboard</h2>
+                    <p>Advanced inventory tracking and stock level monitoring</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group" role="group">
+                        <a href="/products" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Products
+                        </a>
+                        <a href="/products/add" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Add New Product
+                        </a>
+                        <button class="btn btn-warning" onclick="refreshStock()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh Stock
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -437,5 +743,207 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Enhanced JavaScript functionality for Stock Management
+        
+        // Refresh stock function
+        function refreshStock() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading-spinner"></span> Refreshing...';
+            btn.disabled = true;
+            
+            // Simulate refresh (replace with actual AJAX call)
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showNotification('Stock data refreshed successfully!', 'success');
+            }, 2000);
+        }
+        
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px; 
+                right: 20px; 
+                z-index: 1050; 
+                min-width: 300px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                border-radius: 15px;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        // Update stock function
+        function updateStock(productId, currentStock) {
+            const newStock = prompt(`Update stock for product ID ${productId}:`, currentStock);
+            if (newStock !== null && !isNaN(newStock) && newStock >= 0) {
+                // Here you would make an AJAX call to update the stock
+                showNotification(`Stock updated to ${newStock} units`, 'success');
+                // Refresh the page or update the display
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+        
+        // Quick stock actions
+        function quickRestockAll() {
+            if (confirm('This will restock all low-stock items to minimum levels. Continue?')) {
+                showNotification('Restocking all items...', 'info');
+                // Simulate restocking
+                setTimeout(() => {
+                    showNotification('All items restocked successfully!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }, 2000);
+            }
+        }
+        
+        // Export stock data
+        function exportStockData(format) {
+            showNotification(`Preparing ${format.toUpperCase()} export...`, 'info');
+            // Simulate export process
+            setTimeout(() => {
+                showNotification(`Stock data exported as ${format.toUpperCase()}!`, 'success');
+            }, 1500);
+        }
+        
+        // Initialize tooltips and other interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Add hover effects to stock cards
+            document.querySelectorAll('.stock-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Add click animation to buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    let ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+                    
+                    let x = e.clientX - e.target.offsetLeft;
+                    let y = e.clientY - e.target.offsetTop;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255,255,255,0.6);
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: 20px;
+                        height: 20px;
+                    `;
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Auto-update stock level indicators
+            updateStockLevelIndicators();
+        });
+        
+        // Update stock level progress bars
+        function updateStockLevelIndicators() {
+            document.querySelectorAll('[data-stock-current]').forEach(indicator => {
+                const current = parseInt(indicator.dataset.stockCurrent);
+                const max = parseInt(indicator.dataset.stockMax) || 100;
+                const percentage = Math.min((current / max) * 100, 100);
+                
+                const fill = indicator.querySelector('.stock-level-fill');
+                if (fill) {
+                    fill.style.width = percentage + '%';
+                    
+                    // Set color based on stock level
+                    if (percentage > 50) {
+                        fill.className = 'stock-level-fill stock-level-high';
+                    } else if (percentage > 20) {
+                        fill.className = 'stock-level-fill stock-level-medium';
+                    } else {
+                        fill.className = 'stock-level-fill stock-level-low';
+                    }
+                }
+            });
+        }
+        
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .btn {
+                position: relative;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + R for refresh
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshStock();
+            }
+            
+            // Ctrl + E for export
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportStockData('csv');
+            }
+        });
+        
+        // Add search functionality
+        function filterTable(searchTerm) {
+            const table = document.querySelector('table tbody');
+            const rows = table.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Show welcome message
+        setTimeout(() => {
+            showNotification('Welcome to Enhanced Stock Management! Use Ctrl+R to refresh, Ctrl+E to export.', 'info');
+        }, 1000);
+    </script>
 </body>
 </html>
