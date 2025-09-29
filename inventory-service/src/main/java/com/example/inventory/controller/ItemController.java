@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/items")
@@ -14,6 +16,15 @@ public class ItemController {
 
     @Autowired
     private InventoryService inventoryService;
+
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> root() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "Inventory API is running");
+        response.put("version", "1.0");
+        response.put("endpoints", List.of("/api/items"));
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping
     public ResponseEntity<List<Item>> getAllItems() {

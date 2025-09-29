@@ -28,30 +28,57 @@ public class BillingService {
 
     public Sales generateBill(Long itemId, int quantity) {
         try {
-            // Get item from inventory-service using Feign client
-            Map<String, Object> item = inventoryServiceClient.getItemById(itemId);
+            // Try to get item from inventory-service first (microservices approach)
+            Product product = null;
+            boolean useInventoryService = false;
             
-            if (item == null) {
-                throw new RuntimeException("Item not found");
+            try {
+                // Attempt to get from inventory service via Feign client
+                Map<String, Object> item = inventoryServiceClient.getItemById(itemId);
+                if (item != null) {
+                    // Convert to Product object for consistent processing
+                    product = convertMapToProduct(item);
+                    useInventoryService = true;
+                }
+            } catch (Exception e) {
+                System.out.println("Inventory service not available, falling back to local product service");
+            }
+            
+            // Fallback to local product service if inventory service is down
+            if (product == null) {
+                product = productService.getProductById(itemId)
+                    .orElseThrow(() -> new RuntimeException("Item not found"));
+                useInventoryService = false;
             }
 
-            int stock = (int) item.get("quantity");
+            int stock = product.getStockQuantity();
             if (stock <= 0) {
                 throw new RuntimeException("Item is out of stock!");
             }
             if (stock < quantity) {
-                throw new RuntimeException("Not enough stock available!");
+                throw new RuntimeException("Not enough stock available! Available: " + stock);
             }
 
-            double price = ((Number) item.get("price")).doubleValue();
+            double price = product.getPrice().doubleValue();
             double totalAmount = price * quantity;
 
-            // Reduce stock via Feign client
-            inventoryServiceClient.updateStock(itemId, quantity);
+            // Update stock based on which service we're using
+            if (useInventoryService) {
+                // Reduce stock via Feign client (microservices approach)
+                try {
+                    inventoryServiceClient.updateStock(itemId, quantity);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to update inventory: " + e.getMessage());
+                }
+            } else {
+                // Reduce stock locally (fallback approach)
+                product.setStockQuantity(stock - quantity);
+                productService.saveProduct(product);
+            }
 
             Sales sale = Sales.builder()
-                    .itemName((String) item.get("name"))
-                    .category((String) item.get("category"))
+                    .itemName(product.getName())
+                    .category(product.getCategory())
                     .quantitySold(quantity)
                     .totalAmount(totalAmount)
                     .saleDate(LocalDateTime.now())
@@ -60,24 +87,7 @@ public class BillingService {
             return salesRepository.save(sale);
             
         } catch (Exception e) {
-            // Fallback: use sample data when inventory-service is not available
-            Map<String, Object> item = getSampleItemById(itemId);
-            if (item == null) {
-                throw new RuntimeException("Item not found");
-            }
-
-            double price = ((Number) item.get("price")).doubleValue();
-            double totalAmount = price * quantity;
-
-            Sales sale = Sales.builder()
-                    .itemName((String) item.get("name"))
-                    .category((String) item.get("category"))
-                    .quantitySold(quantity)
-                    .totalAmount(totalAmount)
-                    .saleDate(LocalDateTime.now())
-                    .build();
-
-            return salesRepository.save(sale);
+            throw new RuntimeException("Failed to generate bill: " + e.getMessage());
         }
     }
 
@@ -157,6 +167,16 @@ public class BillingService {
         map.put("price", product.getPrice().doubleValue());
         map.put("quantity", product.getStockQuantity());
         return map;
+    }
+
+    private Product convertMapToProduct(Map<String, Object> item) {
+        Product product = new Product();
+        product.setId(((Number) item.get("id")).longValue());
+        product.setName((String) item.get("name"));
+        product.setCategory((String) item.get("category"));
+        product.setPrice(BigDecimal.valueOf(((Number) item.get("price")).doubleValue()));
+        product.setStockQuantity(((Number) item.get("quantity")).intValue());
+        return product;
     }
 
     public Map<String, Object> getItemById(Long itemId) {
