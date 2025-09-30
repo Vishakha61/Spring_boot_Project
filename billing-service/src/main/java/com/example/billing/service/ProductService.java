@@ -3,10 +3,18 @@ package com.example.billing.service;
 import com.example.billing.model.Product;
 import com.example.billing.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,26 +25,91 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    // Get all active products
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private static final String PRODUCT_SERVICE_URL = "http://localhost:8083/api/products";
+
+    // Get all active products from Product Service
     public List<Product> getAllActiveProducts() {
+        try {
+            ResponseEntity<Product[]> response = restTemplate.getForEntity(PRODUCT_SERVICE_URL, Product[].class);
+            if (response.getBody() != null) {
+                return Arrays.asList(response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Product Service: " + e.getMessage());
+            // Fallback to local database
+        }
         return productRepository.findByIsActiveTrue();
     }
 
-    // Get all products (including inactive)
+    // Get all products (including inactive) from Product Service
     public List<Product> getAllProducts() {
+        try {
+            ResponseEntity<Product[]> response = restTemplate.getForEntity(PRODUCT_SERVICE_URL, Product[].class);
+            if (response.getBody() != null) {
+                return Arrays.asList(response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Product Service: " + e.getMessage());
+            // Fallback to local database
+        }
         return productRepository.findAll();
     }
 
-    // Get product by ID
+    // Get product by ID from Product Service
     public Optional<Product> getProductById(Long id) {
+        try {
+            ResponseEntity<Product> response = restTemplate.getForEntity(
+                PRODUCT_SERVICE_URL + "/" + id, Product.class);
+            if (response.getBody() != null) {
+                return Optional.of(response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Product Service for ID " + id + ": " + e.getMessage());
+            // Fallback to local database
+        }
         return productRepository.findById(id);
     }
 
-    // Save or update product
+    // Save or update product via Product Service
     public Product saveProduct(Product product) {
-        // Generate SKU if not provided
-        if (product.getSku() == null || product.getSku().trim().isEmpty()) {
-            product.setSku(generateSKU(product));
+        try {
+            // Generate SKU if not provided
+            if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+                product.setSku(generateSKU(product));
+            }
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Product> request = new HttpEntity<>(product, headers);
+            
+            if (product.getId() != null) {
+                // Update existing product
+                ResponseEntity<Product> response = restTemplate.exchange(
+                    PRODUCT_SERVICE_URL + "/" + product.getId(),
+                    HttpMethod.PUT,
+                    request,
+                    Product.class
+                );
+                if (response.getBody() != null) {
+                    return response.getBody();
+                }
+            } else {
+                // Create new product
+                ResponseEntity<Product> response = restTemplate.postForEntity(
+                    PRODUCT_SERVICE_URL,
+                    request,
+                    Product.class
+                );
+                if (response.getBody() != null) {
+                    return response.getBody();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Product Service: " + e.getMessage());
+            // Fallback to local database
         }
         
         return productRepository.save(product);
@@ -57,8 +130,30 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    // Update product
+    // Update product via Product Service
     public Product updateProduct(Long id, Product updatedProduct) {
+        try {
+            updatedProduct.setId(id);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Product> request = new HttpEntity<>(updatedProduct, headers);
+            
+            ResponseEntity<Product> response = restTemplate.exchange(
+                PRODUCT_SERVICE_URL + "/" + id,
+                HttpMethod.PUT,
+                request,
+                Product.class
+            );
+            
+            if (response.getBody() != null) {
+                return response.getBody();
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Product Service for update: " + e.getMessage());
+            // Fallback to local database
+        }
+        
+        // Fallback to local update
         Optional<Product> existingProductOpt = productRepository.findById(id);
         
         if (existingProductOpt.isPresent()) {
