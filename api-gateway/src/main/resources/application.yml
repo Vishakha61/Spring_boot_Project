@@ -8,29 +8,30 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
+          enabled: false
           lower-case-service-id: true
       routes:
         - id: inventory-service
-          uri: lb://inventory-service
+          uri: http://localhost:8081
           predicates:
-            - Path=/api/items/**
+            - Path=/api/items,/api/items/**
           filters:
             - name: CircuitBreaker
               args:
                 name: inventory-service
                 fallbackUri: forward:/inventory-fallback
         - id: product-service
-          uri: lb://product-service
+          uri: http://localhost:8083
           predicates:
             - Path=/api/products/**
           filters:
+            - StripPrefix=0
             - name: CircuitBreaker
               args:
                 name: product-service
                 fallbackUri: forward:/product-fallback
         - id: billing-service
-          uri: lb://billing-service
+          uri: http://localhost:8082
           predicates:
             - Path=/**
           filters:
@@ -42,7 +43,9 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: false
 
 management:
   endpoints:

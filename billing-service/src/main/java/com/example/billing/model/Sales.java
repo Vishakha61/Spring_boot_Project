@@ -47,6 +47,30 @@ public class Sales {
         this.quantitySold = quantitySold;
     }
 
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(LocalDateTime saleDate) {
+        this.saleDate = saleDate;
+    }
+
     // Builder method
     public static SalesBuilder builder() {
         return new SalesBuilder();

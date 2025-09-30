@@ -21,6 +21,12 @@ public interface InventoryServiceClient {
     @PutMapping("/api/items/{id}/stock")
     Map<String, Object> updateStock(@PathVariable("id") Long id, @RequestParam("quantity") int quantity);
 
+    @GetMapping("/api/items/{id}/stock/check")
+    Map<String, Object> checkStock(@PathVariable("id") Long id, @RequestParam("requiredQuantity") int requiredQuantity);
+
+    @PutMapping("/api/items/{id}/stock/add")
+    Map<String, Object> addStock(@PathVariable("id") Long id, @RequestParam("quantity") int quantity);
+
     @PutMapping("/api/items/{id}")
     Map<String, Object> updateItem(@PathVariable("id") Long id, @RequestBody Map<String, Object> item);
 

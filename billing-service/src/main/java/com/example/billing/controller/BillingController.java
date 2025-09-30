@@ -3,10 +3,12 @@ package com.example.billing.controller;
 import com.example.billing.model.Sales;
 import com.example.billing.service.BillingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +35,19 @@ public class BillingController {
 
     @GetMapping("/items")
     public String getItems(Model model) {
-        List<Map<String, Object>> items = billingService.getAllItems();
-        model.addAttribute("items", items);
+        try {
+            // Get real-time items that are available for billing (synchronized between services)
+            List<Map<String, Object>> items = billingService.getAvailableItemsForBilling();
+            model.addAttribute("items", items);
+            model.addAttribute("message", "Showing items available for billing (synchronized between inventory and products)");
+            model.addAttribute("messageType", "info");
+        } catch (Exception e) {
+            // Fallback to all inventory items if the enhanced method fails
+            List<Map<String, Object>> items = billingService.getAllItems();
+            model.addAttribute("items", items);
+            model.addAttribute("message", "Note: Showing fallback data. Some items may not be synchronized.");
+            model.addAttribute("messageType", "warning");
+        }
         return "items";
     }
 
@@ -208,5 +221,142 @@ public class BillingController {
             "lowStockAlert", "5"
         ));
         return "settings";
+    }
+
+    // REST API Endpoints for Stock Management
+    @PostMapping("/api/sales/{saleId}/cancel")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cancelSale(@PathVariable Long saleId) {
+        try {
+            boolean cancelled = billingService.cancelSale(saleId);
+            Map<String, Object> response = new HashMap<>();
+            
+            if (cancelled) {
+                response.put("status", "success");
+                response.put("message", "Sale cancelled and stock restored successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "Failed to cancel sale");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/api/items/{itemId}/stock/restore")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> restoreStock(@PathVariable Long itemId, 
+                                                           @RequestParam int quantity,
+                                                           @RequestParam(required = false) String reason) {
+        try {
+            String restoreReason = reason != null ? reason : "Manual stock restoration";
+            boolean restored = billingService.restoreStock(itemId, quantity, restoreReason);
+            
+            Map<String, Object> response = new HashMap<>();
+            if (restored) {
+                response.put("status", "success");
+                response.put("message", "Stock restored successfully");
+                response.put("itemId", itemId);
+                response.put("quantity", quantity);
+                response.put("reason", restoreReason);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "Failed to restore stock");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/api/items/{itemId}/stock/status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStockStatus(@PathVariable Long itemId) {
+        try {
+            Map<String, Object> stockStatus = billingService.getStockStatus(itemId);
+            return ResponseEntity.ok(stockStatus);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * Get items that are available for billing (exist in both inventory and products with stock > 0)
+     */
+    @GetMapping("/api/items/available-for-billing")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getAvailableItemsForBilling() {
+        try {
+            List<Map<String, Object>> availableItems = billingService.getAvailableItemsForBilling();
+            return ResponseEntity.ok(availableItems);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    /**
+     * Sync stock between inventory and product services for a specific item
+     */
+    @PostMapping("/api/items/{itemId}/sync-stock")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> syncStock(@PathVariable Long itemId) {
+        try {
+            Map<String, Object> result = billingService.syncStockBetweenServices(itemId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * Get synchronization status between inventory and product services
+     */
+    @GetMapping("/api/sync-status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSyncStatus() {
+        try {
+            Map<String, Object> syncStatus = billingService.getSyncStatus();
+            return ResponseEntity.ok(syncStatus);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * API endpoint to get real-time items for web interface
+     */
+    @GetMapping("/api/items/realtime")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getRealtimeItems() {
+        try {
+            List<Map<String, Object>> items = billingService.getAvailableItemsForBilling();
+            return ResponseEntity.ok(items);
+        } catch (Exception e) {
+            // Fallback to inventory service directly
+            try {
+                List<Map<String, Object>> fallbackItems = billingService.getAllItems();
+                return ResponseEntity.ok(fallbackItems);
+            } catch (Exception fallbackException) {
+                return ResponseEntity.status(500).body(null);
+            }
+        }
     }
 }

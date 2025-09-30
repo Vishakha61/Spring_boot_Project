@@ -41,6 +41,27 @@ public class InventoryServiceFallback implements InventoryServiceClient {
         // Do nothing - service unavailable
     }
 
+    @Override
+    public Map<String, Object> checkStock(Long id, int requiredQuantity) {
+        return Map.of(
+            "itemId", id,
+            "itemName", "Unknown Item",
+            "currentStock", 0,
+            "requiredQuantity", requiredQuantity,
+            "available", false,
+            "status", "SERVICE_UNAVAILABLE",
+            "message", "Inventory service unavailable"
+        );
+    }
+
+    @Override
+    public Map<String, Object> addStock(Long id, int quantity) {
+        return Map.of(
+            "message", "Inventory service unavailable, stock not added",
+            "status", "SERVICE_UNAVAILABLE"
+        );
+    }
+
     private List<Map<String, Object>> getSampleItems() {
         return List.of(
             Map.of(

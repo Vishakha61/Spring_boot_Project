@@ -50,10 +50,45 @@ public class ItemController {
 
     @PutMapping("/{id}/stock")
     public ResponseEntity<Item> updateStock(@PathVariable Long id, @RequestParam int quantity) {
-        Item item = inventoryService.getItemById(id);
-        item.setQuantity(item.getQuantity() - quantity); // Assuming reduce stock
-        inventoryService.updateItem(item);
-        return ResponseEntity.ok(item);
+        try {
+            Item updatedItem = inventoryService.reduceStock(id, quantity);
+            return ResponseEntity.ok(updatedItem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/stock/add")
+    public ResponseEntity<Item> addStock(@PathVariable Long id, @RequestParam int quantity) {
+        try {
+            Item updatedItem = inventoryService.addStock(id, quantity);
+            return ResponseEntity.ok(updatedItem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{id}/stock/check")
+    public ResponseEntity<Map<String, Object>> checkStock(@PathVariable Long id, @RequestParam int requiredQuantity) {
+        try {
+            boolean available = inventoryService.checkStockAvailability(id, requiredQuantity);
+            Item item = inventoryService.getItemById(id);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("itemId", id);
+            response.put("itemName", item.getName());
+            response.put("currentStock", item.getQuantity());
+            response.put("requiredQuantity", requiredQuantity);
+            response.put("available", available);
+            response.put("status", available ? "AVAILABLE" : "INSUFFICIENT_STOCK");
+            
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            response.put("status", "ERROR");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @PutMapping("/{id}")
@@ -78,6 +113,45 @@ public class ItemController {
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/sync-to-products")
+    public ResponseEntity<Map<String, Object>> syncAllItemsToProducts() {
+        try {
+            int syncedCount = inventoryService.syncAllItemsToProducts();
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Items synced to product service");
+            response.put("syncedCount", syncedCount);
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Failed to sync items: " + e.getMessage());
+            response.put("status", "error");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/{id}/sync-to-product")
+    public ResponseEntity<Map<String, Object>> syncItemToProduct(@PathVariable Long id) {
+        try {
+            boolean synced = inventoryService.syncItemToProduct(id);
+            Map<String, Object> response = new HashMap<>();
+            if (synced) {
+                response.put("message", "Item synced to product service successfully");
+                response.put("status", "success");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Item not found");
+                response.put("status", "error");
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Failed to sync item: " + e.getMessage());
+            response.put("status", "error");
+            return ResponseEntity.status(500).body(response);
         }
     }
 }

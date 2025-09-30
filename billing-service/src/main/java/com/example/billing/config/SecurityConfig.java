@@ -30,6 +30,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console for development
+                .requestMatchers("/api/**").permitAll() // Allow API endpoints for testing
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
